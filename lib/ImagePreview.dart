@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui' as ui show Image;
 
+import 'package:extended_image/extended_image.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -12,6 +14,7 @@ import 'MyPainter.dart';
 class ImagePreview extends StatefulWidget {
   final String title = 'Ampera Consumption';
   String imageFile;
+
   ImagePreview({Key key, this.imageFile}) : super(key: key);
 
   @override
@@ -75,6 +78,7 @@ class _ImagePreviewState extends State<ImagePreview> {
 
   double eDist;
   double eUsed;
+
   void calculateResults() {
     final doubleRegex = RegExp(r'(\d+\.\d+)');
     String prev = '';
@@ -112,10 +116,27 @@ class _ImagePreviewState extends State<ImagePreview> {
 
   @override
   Widget build(BuildContext context) {
-    Image image = new Image.file(File(widget.imageFile));
+//    Image image = new Image.file(File(widget.imageFile));
+    ExtendedImage image = ExtendedImage.file(File(widget.imageFile),
+        fit: BoxFit.contain,
+        //enableLoadState: false,
+        mode: ExtendedImageMode.gesture, initGestureConfigHandler: (state) {
+      print(state);
+      return GestureConfig();
+    }, afterPaintImage: afterPaint);
     image.image
         .resolve(new ImageConfiguration())
         .addListener(ImageStreamListener(listener));
+
+    // error: The argument type 'void Function(Canvas, Rect, Image, Paint)
+    // (where Image is defined in
+    // /Users/depidsvy/flutter/packages/flutter/lib/src/widgets/image.dart)'
+    // can't be assigned to the parameter type
+    // 'void Function(Canvas, Rect, Image, Paint)
+    // (where Image is defined in
+    // /Users/depidsvy/flutter/bin/cache/pkg/sky_engine/lib/ui/painting.dart)'.
+    // (argument_type_not_assignable at [flutter_ampera_consumption]
+    // lib/ImagePreview.dart:123)
 
     double eCons;
     String title;
@@ -152,5 +173,9 @@ class _ImagePreviewState extends State<ImagePreview> {
         child: Icon(Icons.refresh),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+
+  void afterPaint(Canvas canvas, Rect rect, ui.Image image, Paint paint) {
+    print(rect);
   }
 }
