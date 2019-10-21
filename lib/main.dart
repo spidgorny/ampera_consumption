@@ -51,6 +51,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _incrementCounter() async {
+//    await detectTextFromImage();
+    this.calculateResults();
+  }
+
+  Future detectTextFromImage() async {
     final File imageFile =
         await getImageFileFromAssets('IMG_20191020_124447.jpg');
     final FirebaseVisionImage visionImage =
@@ -60,6 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final VisionText visionText =
         await textRecognizer.processImage(visionImage);
 
+    this.textElements.clear();
     String text = visionText.text;
     for (TextBlock block in visionText.blocks) {
       final Rect boundingBox = block.boundingBox;
@@ -82,13 +88,41 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     }
     textRecognizer.close();
+
+    this.calculateResults();
+  }
+
+  double eDist;
+  double eUsed;
+  void calculateResults() {
+    final doubleRegex = RegExp(r'(\d+\.\d+)');
+    String prev = '';
+    String prev2 = '';
+    String prev3 = '';
+    for (var element in textElements) {
+      print(element.text);
+      if (prev.startsWith('Usage')) {
+        String onlyNumbers = doubleRegex.firstMatch(element.text).group(0);
+        eDist = double.tryParse(onlyNumbers);
+        print([prev, element.text, eDist].join(' - '));
+      }
+      if (prev3.startsWith('Usage')) {
+        String onlyNumbers = doubleRegex.firstMatch(element.text).group(0);
+        eUsed = double.tryParse(onlyNumbers);
+        print([prev3, element.text, eUsed].join(' - '));
+      }
+
+      // next loop update
+      prev3 = prev2;
+      prev2 = prev;
+      prev = element.text;
+    }
+    setState(() {});
   }
 
   final imageOfScreen = 'assets/IMG_20191020_124447.jpg';
 
   ImageInfo imageInfo;
-
-//  Completer<ui.Image> completer = new Completer<ui.Image>();
 
   void listener(ImageInfo info, bool isSync) {
     print(info);
@@ -104,9 +138,22 @@ class _MyHomePageState extends State<MyHomePage> {
         .resolve(new ImageConfiguration())
         .addListener(ImageStreamListener(listener));
 
+    double eCons;
+    String title;
+    if (eUsed != null && eDist != null && eDist != 0) {
+      eCons = eUsed / eDist * 100;
+      title = eUsed.toString() +
+          'kWh / ' +
+          eDist.toString() +
+          'km = ' +
+          eCons.toStringAsFixed(2) +
+          'kW/100km';
+      print(title);
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(title ?? widget.title),
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -153,6 +200,7 @@ class MyPainter extends CustomPainter {
         element.boundingBox.topRight * zoomFactor,
         element.boundingBox.bottomRight * zoomFactor,
         element.boundingBox.bottomLeft * zoomFactor,
+        element.boundingBox.topLeft * zoomFactor,
       ];
       final pointMode = ui.PointMode.polygon;
       final paint = Paint()
