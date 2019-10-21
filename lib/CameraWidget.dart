@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_ampera_consumption/ImagePreview.dart';
 import 'package:package_info/package_info.dart';
 import 'package:path_provider/path_provider.dart';
@@ -147,10 +148,26 @@ class _CameraWidgetState extends State<CameraWidget> {
       appBar: new AppBar(
         title: new Text(
           title,
-          semanticsLabel: version,
         ),
         actions: <Widget>[
-//          FlatButton(child: Text('Test 1'), onPressed: this.initiateTest2),
+          FlatButton(
+              child: Text(
+                'Demo',
+                style: TextStyle(color: Colors.white),
+              ),
+              onPressed: () async {
+                ByteData data =
+                    await rootBundle.load("assets/IMG_20191020_124447.jpg");
+                List<int> bytes = data.buffer
+                    .asUint8List(data.offsetInBytes, data.lengthInBytes);
+                var filePath = await this.getNewFilename();
+                await File(filePath).writeAsBytes(bytes);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ImagePreview(imageFile: filePath)),
+                );
+              }),
         ],
       ),
       body: new Center(
