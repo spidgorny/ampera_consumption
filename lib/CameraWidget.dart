@@ -75,6 +75,7 @@ class _CameraWidgetState extends State<CameraWidget> {
 
   @override
   void dispose() {
+    print('************* CAMERA DISPOSED ***************');
     controller?.dispose();
     super.dispose();
   }
@@ -128,12 +129,17 @@ class _CameraWidgetState extends State<CameraWidget> {
         ),
       );
     } else {
-      return AspectRatio(
-        aspectRatio: controller.value.aspectRatio,
-        child: CameraPreview(controller),
-      );
+      return RotatedBox(
+          quarterTurns: isLandscape() ? 3 : 0,
+          child: AspectRatio(
+            aspectRatio: controller.value.aspectRatio,
+            child: CameraPreview(controller),
+          ));
     }
   }
+
+  bool isLandscape() =>
+      MediaQuery.of(context).orientation == Orientation.landscape;
 
   @override
   Widget build(BuildContext context) {
@@ -144,42 +150,51 @@ class _CameraWidgetState extends State<CameraWidget> {
     var title = 'Make a photo of the consumption screen';
 
     return new Scaffold(
-      key: _scaffoldKey,
-      appBar: new AppBar(
-        title: new Text(
-          title,
+        key: _scaffoldKey,
+        appBar: new AppBar(
+          title: new Text(
+            title,
+          ),
+          actions: <Widget>[
+            FlatButton(
+                child: Text(
+                  'Demo',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onPressed: () async {
+                  ByteData data =
+                      await rootBundle.load("assets/IMG_20191020_124447.jpg");
+                  List<int> bytes = data.buffer
+                      .asUint8List(data.offsetInBytes, data.lengthInBytes);
+                  var filePath = await this.getNewFilename();
+                  await File(filePath).writeAsBytes(bytes);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            ImagePreview(imageFile: filePath)),
+                  );
+                }),
+          ],
         ),
-        actions: <Widget>[
-          FlatButton(
-              child: Text(
-                'Demo',
-                style: TextStyle(color: Colors.white),
-              ),
-              onPressed: () async {
-                ByteData data =
-                    await rootBundle.load("assets/IMG_20191020_124447.jpg");
-                List<int> bytes = data.buffer
-                    .asUint8List(data.offsetInBytes, data.lengthInBytes);
-                var filePath = await this.getNewFilename();
-                await File(filePath).writeAsBytes(bytes);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ImagePreview(imageFile: filePath)),
-                );
-              }),
-        ],
-      ),
-      body: new Center(
-        child: new SingleChildScrollView(
-          child: _cameraPreviewWidget(),
+        body: new Center(
+          child: new SingleChildScrollView(
+            child: _cameraPreviewWidget(),
+          ),
         ),
-      ),
-      floatingActionButton: new FloatingActionButton(
-        onPressed: () => _fabClick(context),
-        tooltip: 'Make Photo',
-        child: new Icon(Icons.camera),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
+        floatingActionButton: Container(
+            height: 100.0,
+            width: 100.0,
+            child: FittedBox(
+                child: new FloatingActionButton(
+              onPressed: () => _fabClick(context),
+              tooltip: 'Make Photo',
+              child: new Icon(Icons.camera),
+            ))),
+        floatingActionButtonLocation: isLandscape()
+            ? FloatingActionButtonLocation.endFloat
+            : FloatingActionButtonLocation.centerFloat
+        // This trailing comma makes auto-formatting nicer for build methods.
+        );
   }
 }

@@ -7,9 +7,11 @@ import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter_ampera_consumption/TextElement2.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'MyPainter.dart';
+import 'NumberParser.dart';
 
 class ImagePreview extends StatefulWidget {
   final String title = 'Ampera Consumption';
@@ -62,11 +64,11 @@ class _ImagePreviewState extends State<ImagePreview> {
         for (TextElement element in line.elements) {
           // Same getters as TextBlock
 //          text += element.text;
-          print(element.text +
-              "[" +
-              element.cornerPoints.join(', ') +
-              "]" +
-              element.confidence.toString());
+//          print(element.text +
+//              "[" +
+//              element.cornerPoints.join(', ') +
+//              "]" +
+//              element.confidence.toString());
           this.textElements.add(element);
         }
       }
@@ -79,30 +81,22 @@ class _ImagePreviewState extends State<ImagePreview> {
   double eDist;
   double eUsed;
 
-  void calculateResults() {
-    final doubleRegex = RegExp(r'(\d+\.\d+)');
-    String prev = '';
-    String prev2 = '';
-    String prev3 = '';
-    for (var element in textElements) {
-      print(element.text);
-      if (prev.startsWith('Usage')) {
-        String onlyNumbers = doubleRegex.firstMatch(element.text).group(0);
-        eDist = double.tryParse(onlyNumbers);
-        print([prev, element.text, eDist].join(' - '));
-      }
-      if (prev3.startsWith('Usage')) {
-        String onlyNumbers = doubleRegex.firstMatch(element.text).group(0);
-        eUsed = double.tryParse(onlyNumbers);
-        print([prev3, element.text, eUsed].join(' - '));
-      }
+  double gDist;
+  double gUsed;
 
-      // next loop update
-      prev3 = prev2;
-      prev2 = prev;
-      prev = element.text;
-    }
-    setState(() {});
+  void calculateResults() {
+    List<TextElement2> textElements2 = textElements.map((el) {
+      return TextElement2.from(el);
+    }).toList();
+    var np = NumberParser(textElements2);
+    np.parse();
+    setState(() {
+      this.eDist = np.eDist;
+      this.eUsed = np.eUsed;
+      this.gDist = np.gDist;
+      this.gUsed = np.gUsed;
+      print([this.eDist, this.eUsed, this.gDist, this.gUsed].toString());
+    });
   }
 
   ImageInfo imageInfo;
@@ -139,9 +133,9 @@ class _ImagePreviewState extends State<ImagePreview> {
     // lib/ImagePreview.dart:123)
 
     double eCons;
-    String title;
     if (eUsed != null && eDist != null && eDist != 0) {
       eCons = eUsed / eDist * 100;
+      String title;
       title = eUsed.toString() +
           'kWh / ' +
           eDist.toString() +
@@ -150,19 +144,67 @@ class _ImagePreviewState extends State<ImagePreview> {
           'kW/100km';
       print(title);
     }
+    double gCons;
+    if (gUsed != null && gDist != null && gDist != 0) {
+      gCons = gUsed / gDist * 100;
+    }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(title ?? widget.title),
+        title: Text(widget.title),
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Stack(children: <Widget>[
-            CustomPaint(
-              foregroundPainter: MyPainter(this.imageInfo, this.textElements),
-              child: image,
-            )
-          ]),
+      body: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            Stack(children: <Widget>[
+              CustomPaint(
+                foregroundPainter: MyPainter(this.imageInfo, this.textElements),
+                child: image,
+              )
+            ]),
+            ListTile(
+              title: Text('e Used'),
+              trailing: Text(
+                eUsed != null ? eUsed.toStringAsFixed(2) + 'kW/h' : '',
+                textScaleFactor: 1.5,
+              ),
+            ),
+            ListTile(
+              title: Text('e Distance'),
+              trailing: Text(
+                eDist != null ? eDist.toStringAsFixed(2) + 'km' : '',
+                textScaleFactor: 1.5,
+              ),
+            ),
+            ListTile(
+              title: Text('e Consumption'),
+              trailing: Text(
+                eCons != null ? eCons.toStringAsFixed(2) + 'kW/h / 100km' : '',
+                textScaleFactor: 1.5,
+              ),
+            ),
+            ListTile(
+              title: Text('g Used'),
+              trailing: Text(
+                gUsed != null ? gUsed.toStringAsFixed(2) + 'L' : '',
+                textScaleFactor: 1.5,
+              ),
+            ),
+            ListTile(
+              title: Text('g Distance'),
+              trailing: Text(
+                gDist != null ? gDist.toStringAsFixed(2) + 'km' : '',
+                textScaleFactor: 1.5,
+              ),
+            ),
+            ListTile(
+              title: Text('g Consumption'),
+              trailing: Text(
+                gCons != null ? gCons.toStringAsFixed(2) + 'L / 100km' : '',
+                textScaleFactor: 1.5,
+              ),
+            ),
+          ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
