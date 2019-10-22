@@ -2,15 +2,28 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ampera_consumption/CameraWidget.dart';
 
-List<CameraDescription> cameras;
-
 void main() async {
-  cameras = await availableCameras();
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  List<CameraDescription> cameras = [];
+
+  @override
+  void initState() {
+    super.initState();
+    initAsyncState();
+  }
+
+  initAsyncState() async {
+    cameras = await availableCameras();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -19,7 +32,9 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
 //      home: ImagePreview(),
-      home: CameraWidget(cameras[0]),
+      home: cameras.length == 0
+          ? CircularProgressIndicator()
+          : CameraWidget(cameras[0]),
     );
   }
 }
