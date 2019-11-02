@@ -15,7 +15,7 @@ import 'NumberParser.dart';
 
 class ImagePreview extends StatefulWidget {
   final String title = 'Ampera Consumption';
-  String imageFile;
+  final String imageFile;
 
   ImagePreview({Key key, this.imageFile}) : super(key: key);
 

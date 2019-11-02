@@ -32,6 +32,9 @@ dependencies:
   http: any
   yaml: any
   extended_image: ^0.6.4
+#  camera_utils: any nof androidX
+  permission_handler: '^3.3.0'
+  get_it: ^3.0.3
 
 dev_dependencies:
   flutter_test:

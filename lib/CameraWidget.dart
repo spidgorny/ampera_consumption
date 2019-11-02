@@ -4,9 +4,10 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_ampera_consumption/ImagePreview.dart';
 import 'package:package_info/package_info.dart';
 import 'package:path_provider/path_provider.dart';
+
+import 'ImagePreview.dart';
 
 class CameraWidget extends StatefulWidget {
   final camera;
@@ -28,6 +29,11 @@ class _CameraWidgetState extends State<CameraWidget> {
   @override
   void initState() {
     super.initState();
+    initCamera();
+    initAsync();
+  }
+
+  void initCamera() {
     controller = new CameraController(widget.camera, ResolutionPreset.medium);
     controller.initialize().then((_) {
       if (!mounted) {
@@ -35,8 +41,6 @@ class _CameraWidgetState extends State<CameraWidget> {
       }
       setState(() {});
     });
-
-    initAsync();
   }
 
   void initAsync() async {
@@ -51,7 +55,7 @@ class _CameraWidgetState extends State<CameraWidget> {
   }
 
   void _fabClick(context) {
-    takePicture().then((String filePath) {
+    takePicture().then((String filePath) async {
       if (mounted) {
         setState(() {
           imagePath = filePath;
@@ -59,11 +63,14 @@ class _CameraWidgetState extends State<CameraWidget> {
         if (filePath != null) {
           //showInSnackBar('Picture saved to $filePath');
 
-          Navigator.push(
+          var result = await Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) => ImagePreview(imageFile: filePath)),
           );
+
+          // after Navigator.pop
+          this.initCamera();
         }
       }
     });

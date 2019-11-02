@@ -1,8 +1,11 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_ampera_consumption/CameraWidget.dart';
+import 'package:flutter_ampera_consumption/CheckPermissions.dart';
+
+import 'NavigationService.dart';
+import 'locator.dart';
 
 void main() async {
+  setupLocator();
   runApp(MyApp());
 }
 
@@ -12,18 +15,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  List<CameraDescription> cameras = [];
-
-  @override
-  void initState() {
-    super.initState();
-    initAsyncState();
-  }
-
-  initAsyncState() async {
-    cameras = await availableCameras();
-  }
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -31,10 +22,10 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-//      home: ImagePreview(),
-      home: cameras.length == 0
-          ? CircularProgressIndicator()
-          : CameraWidget(cameras[0]),
+      navigatorKey: locator<NavigationService>().navigatorKey,
+      home: CheckPermissions(
+        title: 'Ampera Consumption',
+      ),
     );
   }
 }
