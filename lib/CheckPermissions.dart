@@ -61,35 +61,41 @@ class _CheckPermissionsState extends State<CheckPermissions> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title ?? ''),
+    return MaterialApp(
+        title: 'Ampera Consumption',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
         ),
-        body: Padding(
-            padding: EdgeInsets.all(8),
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Checking permissions...',
-                    textScaleFactor: 1.5,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                    child: LinearProgressIndicator(),
-                  ),
-                  Text(
-                    'Camera permission is required to make a photo',
-                    textScaleFactor: 1.25,
-                  ),
-                  RaisedButton(
-                    child: Text('Try again'),
-                    onPressed: () {
-                      this.requestPermissions();
-                    },
-                  )
-                ])));
+        navigatorKey: locator<NavigationService>().navigatorKey,
+        home: Scaffold(
+            appBar: AppBar(
+              title: Text(widget.title ?? ''),
+            ),
+            body: Padding(
+                padding: EdgeInsets.all(8),
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Checking permissions...',
+                        textScaleFactor: 1.5,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                        child: LinearProgressIndicator(),
+                      ),
+                      Text(
+                        'Camera permission is required to make a photo',
+                        textScaleFactor: 1.25,
+                      ),
+                      RaisedButton(
+                        child: Text('Try again'),
+                        onPressed: () {
+                          this.requestPermissions();
+                        },
+                      )
+                    ]))));
   }
 
   // NavigatorService is needed

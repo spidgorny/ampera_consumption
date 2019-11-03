@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ampera_consumption/CheckPermissions.dart';
 
-import 'NavigationService.dart';
 import 'locator.dart';
 
 void main() async {
@@ -22,7 +21,7 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      navigatorKey: locator<NavigationService>().navigatorKey,
+//      navigatorKey: locator<NavigationService>().navigatorKey,
       home: CheckPermissions(
         title: 'Ampera Consumption',
       ),

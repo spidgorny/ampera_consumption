@@ -6,7 +6,10 @@ import 'CameraWidget.dart';
 
 class CameraSelector extends StatefulWidget {
   @override
-  _CameraSelectorState createState() => _CameraSelectorState();
+  _CameraSelectorState createState() {
+    print('CameraSelector->createState');
+    return _CameraSelectorState();
+  }
 }
 
 class _CameraSelectorState extends State<CameraSelector> {
@@ -14,23 +17,35 @@ class _CameraSelectorState extends State<CameraSelector> {
 
   @override
   void initState() {
+    print('initState');
     super.initState();
     initAsyncState();
   }
 
   initAsyncState() async {
-    cameras = await availableCameras();
+    print('initAsyncState');
+    var cameras = await availableCameras();
+    setState(() {
+      this.cameras = cameras;
+    });
+    print('initAsyncState: ' + cameras.length.toString());
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        title: 'Ampera Consumption',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        home: cameras.length == 0
-            ? CircularProgressIndicator()
-            : CameraWidget(cameras[0]));
+    print('cameras.length: ' + cameras.length.toString());
+    return cameras.length == 0
+        ? Scaffold(
+            appBar: AppBar(
+              title: Text('Checking cameras'),
+            ),
+            body: Center(child: CircularProgressIndicator()),
+            floatingActionButton: FloatingActionButton(
+                onPressed: () {
+                  this.initAsyncState();
+                },
+                child: Icon(Icons.refresh)),
+          )
+        : CameraWidget(cameras[0]);
   }
 }
