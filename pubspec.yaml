@@ -32,14 +32,23 @@ dependencies:
   http: any
   yaml: any
   extended_image: ^0.6.4
-#  camera_utils: any nof androidX
-  permission_handler: '^3.3.0'
+#  camera_utils: any not androidX
+#  permission_handler: '^3.3.0' # issue #167
+  permission_handler:
+    git:
+      url: https://github.com/BaseflowIT/flutter-permission-handler
+      ref: develop
   get_it: ^3.0.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: "^0.7.3"
 
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "android/app/src/main/res/logo.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
