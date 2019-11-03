@@ -28,7 +28,9 @@ main() async {
           document.querySelector('script[type="application/ld+json"]');
       var json = jsonDecode(jsonScript.innerHtml);
 //      print(json['version']);
-      if (json['version'].toString().compareTo(versionNumber) > 0) {
+      var isAny = versionNumber == 'any';
+      var isOlder = json['version'].toString().compareTo(versionNumber) > 0;
+      if (isOlder || isAny) {
         print(' => ' + json['version']);
       }
     }
