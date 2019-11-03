@@ -1,0 +1,6 @@
+{
+  "scripts": {
+    "base64:android": "openssl base64 -in android/app/google-services.json | pbcopy",
+    "build:bundle": "flutter build appbundle --release --verbose"
+  }
+}
