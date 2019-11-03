@@ -30,7 +30,7 @@ void main() {
 
   test('Parse text', () async {
     List<TextElement2> textElements = [];
-    String contents = await new File('test/tf-text.txt').readAsString();
+    String contents = await parseRawSample('tf-text.txt');
     for (var line in contents.split('\n')) {
       var te = TextElement2(line.trim(), []);
       textElements.add(te);
@@ -43,4 +43,16 @@ void main() {
     expect(np.gDist, equals(0.0));
     expect(np.gUsed, equals(0.0));
   });
+}
+
+Future<String> parseRawSample(String filePath, [bool relative = true]) async {
+  filePath = relative ? "test/$filePath" : filePath;
+
+  String jsonString;
+  try {
+    jsonString = await File(filePath).readAsString();
+  } catch (e) {
+    jsonString = await File("../" + filePath).readAsString();
+  }
+  return jsonString;
 }
