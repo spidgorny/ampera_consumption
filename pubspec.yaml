@@ -39,6 +39,7 @@ dependencies:
       url: https://github.com/BaseflowIT/flutter-permission-handler
       ref: develop
   get_it: ^3.0.3
+  image: ^2.1.8
 
 dev_dependencies:
   flutter_test:
